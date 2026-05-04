@@ -1,0 +1,53 @@
+name: 12-train-python
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  train_python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 12_end
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas xgboost
+
+      - name: Ensure training data exists
+        run: python 01_ingest_traffic.py
+
+      - name: Train model (Python)
+        run: python 02_train_model.py
+
+      - name: Upload xgboost-model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xgboost-model
+          path: |
+            12_end/data/modelpy.json
+            12_end/data/validationpy.json
+          if-no-files-found: error
+
+      - name: Commit model outputs (if changed)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(12_end): retrain Python xgboost model"
+          file_pattern: |
+            12_end/data/modelpy.json
+            12_end/data/validationpy.json
