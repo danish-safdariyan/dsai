@@ -29,9 +29,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy pandas xgboost
 
-      - name: Ensure training data exists
-        run: python 01_ingest_traffic.py
-
       - name: Train model (Python)
         run: python 02_train_model.py
 

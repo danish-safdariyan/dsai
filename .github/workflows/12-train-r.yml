@@ -36,9 +36,6 @@ jobs:
             any::tibble
             any::purrr
 
-      - name: Ensure training data exists
-        run: Rscript 01_ingest_traffic.R
-
       - name: Train model (R)
         run: Rscript 02_train_model.R
 
